@@ -1530,9 +1530,13 @@ function webViewerInitialized() {
   //Change the page when the document is fully loaded
   PDFViewerApplication.eventBus.on("documentloaded", ()=>{
     console.log("document loaded! switching to page:", page)
-    //FIXME: Both ways seem work, which is the best?
+    
+    //FIXME: Both ways for setting the page seem to work, which one is the best?
     PDFViewerApplication.page = page
-    // PDFViewerApplication.eventBus.dispatch('pagechanging', {pageNumber: page});
+    // PDFViewerApplication.eventBus.dispatch('pagechanging', {pageNumber: page})
+    //if not using setTimeout sometimes it does not go to the page (why ??).
+    setTimeout(()=>PDFViewerApplication.eventBus.dispatch('pagechanging', {pageNumber: page}), 0);
+    
   })  
   
   if (typeof PDFJSDev === 'undefined' || PDFJSDev.test('GENERIC')) {
