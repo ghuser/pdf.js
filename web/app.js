@@ -1513,10 +1513,13 @@ function loadAndEnablePDFBug(enabledTabs) {
 function webViewerInitialized() {
   let appConfig = PDFViewerApplication.appConfig;
   let file;
+  let page;
   if (typeof PDFJSDev === 'undefined' || PDFJSDev.test('GENERIC')) {
     let queryString = document.location.search.substring(1);
     let params = parseQueryString(queryString);
+    //parsing optional filename and page numbers from browser params
     file = 'file' in params ? params.file : AppOptions.get('defaultUrl');
+    page = 'page' in params ? Math.trunc(params.page) : 1;
     validateFileURL(file);
   } else if (PDFJSDev.test('FIREFOX || MOZCENTRAL')) {
     file = window.location.href.split('#')[0];
@@ -1524,6 +1527,14 @@ function webViewerInitialized() {
     file = AppOptions.get('defaultUrl');
   }
 
+  //Change the page when the document is fully loaded
+  PDFViewerApplication.eventBus.on("documentloaded", ()=>{
+    console.log("document loaded! switching to page:", page)
+    //FIXME: Both ways seem work, which is the best?
+    PDFViewerApplication.page = page
+    // PDFViewerApplication.eventBus.dispatch('pagechanging', {pageNumber: page});
+  })  
+  
   if (typeof PDFJSDev === 'undefined' || PDFJSDev.test('GENERIC')) {
     let fileInput = document.createElement('input');
     fileInput.id = appConfig.openFileInputName;
