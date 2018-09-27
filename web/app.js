@@ -1519,7 +1519,7 @@ function webViewerInitialized() {
     let params = parseQueryString(queryString);
     //parsing optional filename and page numbers from browser params
     file = 'file' in params ? params.file : AppOptions.get('defaultUrl');
-    page = 'page' in params ? Math.trunc(params.page) : 1;
+    page = 'page' in params ?  parseInt(params.page) : 1;//Instead of Math.trunc() so that it works also on IE
     validateFileURL(file);
   } else if (PDFJSDev.test('FIREFOX || MOZCENTRAL')) {
     file = window.location.href.split('#')[0];
@@ -1531,11 +1531,12 @@ function webViewerInitialized() {
   PDFViewerApplication.eventBus.on("documentloaded", ()=>{
     console.log("document loaded! switching to page:", page)
     
-    //FIXME: Both ways for setting the page seem to work, which one is the best?
-    PDFViewerApplication.page = page
-    // PDFViewerApplication.eventBus.dispatch('pagechanging', {pageNumber: page})
     //if not using setTimeout sometimes it does not go to the page (why ??).
-    setTimeout(()=>PDFViewerApplication.eventBus.dispatch('pagechanging', {pageNumber: page}), 0);
+    setTimeout(()=>{
+        PDFViewerApplication.page = page
+        //THe following does work sometimes but not always, so prefering the above
+        // PDFViewerApplication.eventBus.dispatch('pagechanging', {pageNumber: page})
+      }, 0);
     
   })  
   
